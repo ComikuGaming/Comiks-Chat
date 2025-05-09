@@ -5,3 +5,4 @@ then when you get into the app script project you just created click the plus on
 Copy code.gs in this Repo and paste it into the Code.gs part in the App Scripts project
 Now in index.html copy the Index from this repo and paste it, go throught and look for stuff that says you need an api url or other stuff, open up a new github repo and name it password or smth. click create, after this you need to click the plus and click NEW FILE.
 Name the file passwords.json.
+Now with that new file created copy the code in the passwords.json example and if you want fill out the names
