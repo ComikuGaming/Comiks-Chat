@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Google Doc Web bbbbApp</title>
+  <style>
+    /* Body styling for the background image */
+    body {
+      z-index: 2;
+      position: relative;
+      font-family: Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      display: flex;
+      background-image: url('BACKGROUND URL GOES HERE');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      color: white;
+      justify-content: flex-start;
+    }
+
+    .top-section {
+      font-family: courier new, monospace;
+      font-weight: lighter;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.8); /* Background color */
+      z-index: 1; 
+      position: absolute;
+      left: 50%;
+      transform: translateX(-50%);
+      top: 38px;
+      width: auto; /* Makes the background fit content */
+      padding: 3px 27px; /* Adds slight padding to prevent text from touching edges */
+      text-align: center;
+      font-size: 40px;
+      display: inline-block; /* Ensures background only wraps content */
+      border-radius: 10px; /* Optional for rounded corners */
+    }
+
+
+
+
+    h1 {
+      margin: 0;;
+      padding: 0;
+    }
+
+    
+    .top-section textarea {
+      color: white; /* Set text color */
+      z-index: 0;
+      position: absolute;
+      left: 25%;
+      transform: translateX(-25%);
+      top: 150%;
+      width: 87%;
+      height: 123px;
+      padding-top: 100%;
+      padding: 10px;
+      text-align: center;
+      font-family: Cursive, sans-serif; /* Correct font family */
+      font-size: 13px; /* Change to desired font size */
+      background-color: rgba(0, 0, 0, 0.8); /* Semi-transparent black background */
+      border: 1px solid white;
+      border-radius: 4px;
+      box-sizing: border-box;
+      resize: none; /* Disable resizing */
+    }
+
+
+    /* Left section (for buttons) */
+    .left-section {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding-left: 30px;
+      padding-right: 30px;
+    }
+
+    /* Fixed positioning for buttons, anchored to the left-center of the screen */
+    .buttons-container {
+      font-color: white;
+      position: fixed;
+      top: 50%; /* Vertically centered */
+      left: 0;
+      transform: translateY(-50%); /* Adjust for exact centering */
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      align-items: flex-start;
+      padding-left: 18px;
+    }
+
+    button {
+      padding: 5px 20px; /* Reduced padding for smaller button height */
+      background-color: #a30000;
+      font-family: cursive, sans-serif;
+      font-weight: bold;
+      font-color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 15px;
+      margin: 5px 0; /* Reduced margin */
+      width: 66%; /* Smaller button width */
+    }
+
+    button:hover {
+      background-color: #a30000;
+    }
+
+    /* Right section (for document content) */
+    .right-section {
+      z-index: 2;
+      width: 10%; /* Take up the right half of the screen */
+      height: 100vh; /* Full height of the screen */
+      position: static; /* Fixed position on the right */
+      top: 0;
+      right: 0;
+      padding: 5px;
+      background: linear-gradient(to bottom, #c0c0c0, #808080, #616161, #313131, #000000); /*put your color graidint here or no color gradient with background-color: "COLOR HEX"
+      font-weight: bold;
+      font-size: 15px;
+      font-family: Roboto, sans-serif;
+      border: 7px solid;
+      border-color: black;
+      border-radius: 9px;
+      overflow-y: auto; /* Scroll if content exceeds */
+      display: none; /* Initially hidden */
+    }
+
+    /* Styling for the container and buttons */
+    #logo {
+      width: 150px;
+      height: auto;
+      margin-bottom: 20px;
+    }
+
+    /* Hiding the doc container initially */
+    #docContainer {
+      width: 100%;
+      height: 100%;
+      overflow-y: auto;
+    }
+
+    .right-section h2 {
+      z-index: 3;
+      position: static;
+      font-color: white;
+      font-size: 50px;
+      font-weight: bold;
+      font-family: courier new, monospace;
+      border-radius: 6px;
+      height: 75px;
+      padding: 25px 12px 12px 12px;
+    }
+  </style>
+  <script>
+let userName = '';
+
+function sendText() {
+  var text = document.getElementById('textInput').value.trim();
+  if (userName) {
+    google.script.run.appendToDoc(text, userName);
+    document.getElementById('textInput').value = ''; // Clear input after sending
+    updateDocContent();
+  }
+}
+
+function updateDocContent() {
+  google.script.run.withSuccessHandler(function(content) {
+    var reversedContent = content.split('\n').reverse().join('\n');
+
+    var updatedContent = reversedContent.replace(/([a-zA-Z][a-zA-Z\d+\-.]*:\/\/[^\s]+)/g, function(url) {
+      return `<a href="${url}" target="_blank" style="color: #00f; text-decoration: underline;">${url}</a>`;
+    });
+
+    document.getElementById('docContent').innerHTML = updatedContent;
+  }).getDocContent();
+}
+
+function onLoad() {
+  updateDocContent();
+  setInterval(updateDocContent, 1500); // Refresh every 5 seconds
+
+  // Add event listener for key presses
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Enter') {
+      sendText();
+    }
+    if (event.ctrlKey && event.key === 'Y' || event.ctrlKey && event.key === 'y') {
+      toggleDocVisibility(); // Toggle doc visibility when Q is pressed
+    }
+  });
+}
+
+function toggleDocVisibility() {
+  const docContainer = document.getElementById('docContainer');
+  
+  if (docContainer.style.display === 'none' || docContainer.style.display === '') {
+    const password = prompt('Enter password:');
+    
+    google.script.run.withSuccessHandler(function(name) {
+      if (name) {
+        userName = name; // Set the user name based on the password
+        docContainer.style.display = 'block'; // Show the document
+      } else {
+        alert('Incorrect password.');
+      }
+    }).checkPassword(password);
+  } else {
+    docContainer.style.display = 'none'; // Hide the document
+  }
+}
+
+function changePassword() {
+  const constantPassword = prompt('Enter the constant password to change the password:');
+  
+  google.script.run.withSuccessHandler(function(isValid) {
+    if (isValid) {
+      const oldPassword = prompt('Enter the old password:');
+      const newPassword = prompt('Enter the new password:');
+      
+      google.script.run.updatePassword(oldPassword, newPassword);
+    } else {
+      alert('Incorrect constant password.');
+    }
+  }).validateConstantPassword(constantPassword);
+}
+</script>
+</head>
+<body onload="onLoad()">
+  <!-- Top section (Title and Text area) -->
+  <div class="top-section">
+    <h1>TITLE OF PAGE</h1>
+    <textarea id="textInput" rows="4" placeholder="Type your text here..."></textarea>
+  </div>
+
+  <!-- Left section (Buttons) -->
+  <div class="left-section">
+    <div class="buttons-container">
+      <button onclick="sendText()">Send Text</button>
+      <button onclick="changePassword()">Change Password</button>
+    </div>
+  </div>
+
+  <!-- Right section (Document Content) -->
+  <div class="right-section" id="docContainer">
+    <h2>TxT</h2>
+    <pre id="docContent"></pre>
+  </div>
+</body>
+</html>
